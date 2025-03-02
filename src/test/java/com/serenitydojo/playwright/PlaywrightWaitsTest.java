@@ -28,7 +28,7 @@ public class PlaywrightWaitsTest {
         playwright = Playwright.create();
         playwright.selectors().setTestIdAttribute("data-test");
         browser = playwright.chromium().launch(
-                new BrowserType.LaunchOptions().setHeadless(true)
+                new BrowserType.LaunchOptions().setHeadless(false)
                         .setArgs(Arrays.asList("--no-sandbox", "--disable-extensions", "--disable-gpu"))
         );
     }
@@ -59,20 +59,38 @@ public class PlaywrightWaitsTest {
         }
 
         @Test
-        void shouldShowAllProductNames() {
-            List<String> productNames = page.getByTestId("product-name").allInnerTexts();
+        void shouldDhowAllProductNames(){
+            page.waitForSelector("//h5[@data-test ='product-name']");
+            List <String> productNames = page.getByTestId("product-name").allInnerTexts();
             Assertions.assertThat(productNames).contains("Pliers", "Bolt Cutters", "Hammer");
+
         }
 
         @Test
-        void shouldShowAllProductImages() {
-            List<String> productImageTitles = page.locator(".card-img-top").all()
+        void shouldShowAllProductImages(){
+            page.waitForSelector("//img[@class ='card-img-top']");
+            List <String> productImageTitles = page.locator("//img[@class ='card-img-top']").all()
                     .stream()
                     .map(img -> img.getAttribute("alt"))
                     .toList();
 
             Assertions.assertThat(productImageTitles).contains("Pliers", "Bolt Cutters", "Hammer");
         }
+//        @Test
+//        void shouldShowAllProductNames() {
+//            List<String> productNames = page.getByTestId("product-name").allInnerTexts();
+//            Assertions.assertThat(productNames).contains("Pliers", "Bolt Cutters", "Hammer");
+//        }
+//
+//        @Test
+//        void shouldShowAllProductImages() {
+//            List<String> productImageTitles = page.locator(".card-img-top").all()
+//                    .stream()
+//                    .map(img -> img.getAttribute("alt"))
+//                    .toList();
+//
+//            Assertions.assertThat(productImageTitles).contains("Pliers", "Bolt Cutters", "Hammer");
+//        }
     }
 
     @Nested
@@ -85,26 +103,39 @@ public class PlaywrightWaitsTest {
         // Automatic wait
         @Test
         @DisplayName("Should wait for the filter checkbox options to appear before clicking")
-        void shouldWaitForTheFilterCheckboxes() {
-
+        void shouldWaitForTheFilterCheckboxes(){
             var screwdriverFilter = page.getByLabel("Screwdriver");
-
             screwdriverFilter.click();
-
             assertThat(screwdriverFilter).isChecked();
+            page.waitForSelector("//h5[contains(text(), 'Screwdriver')]");
+
+            List <String> productTitle = page.getByTestId("product-name").allInnerTexts();
+
+            Assertions.assertThat(productTitle).anyMatch(title -> title.contains("Screwdriver"));
         }
+//        void shouldWaitForTheFilterCheckboxes() {
+//
+//            var screwdriverFilter = page.getByLabel("Screwdriver");
+//
+//            screwdriverFilter.click();
+//
+//            assertThat(screwdriverFilter).isChecked();
+//        }
 
         @Test
         @DisplayName("Should filter products by category")
         void shouldFilterProductsByCategory() {
             page.getByRole(AriaRole.MENUBAR).getByText("Categories").click();
             page.getByRole(AriaRole.MENUBAR).getByText("Power Tools").click();
+//            page.getByRole(AriaRole.MENUBAR).getByTestId("nav-power-tools").click();
 
+//            page.waitForSelector("//a[starts-with(@data-test, 'product')]");
             page.waitForSelector(".card",
                     new Page.WaitForSelectorOptions().setState(WaitForSelectorState.VISIBLE).setTimeout(2000)
             );
 
             var filteredProducts = page.getByTestId("product-name").allInnerTexts();
+//            List <String> filteredProducts = page.getByTestId("product-name").allInnerTexts();
 
             Assertions.assertThat(filteredProducts).contains("Sheet Sander", "Belt Sander", "Random Orbit Sander");
 
@@ -169,6 +200,8 @@ public class PlaywrightWaitsTest {
                         page.getByTestId("sort").selectOption("Price (High - Low)");
                     });
 
+//            page.getByTestId("sort").selectOption("Price (High - Low)");
+//            page.getByTestId("product-price").first().waitFor();
             // Find all the prices on the page
             var productPrices = page.getByTestId("product-price")
                     .allInnerTexts()
