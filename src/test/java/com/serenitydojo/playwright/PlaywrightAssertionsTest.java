@@ -109,11 +109,11 @@ public class PlaywrightAssertionsTest {
         }
 
         @Test
-        void allProductPricesShouldBeCorrectValues() {
-            List<Double> prices = page.getByTestId("product-price")
+        void allProductPricesShouldBeCorrectValues(){
+            List <Double> prices = page.getByTestId("product-price")
                     .allInnerTexts()
                     .stream()
-                    .map(price -> Double.parseDouble(price.replace("$","")))
+                    .map(price -> Double.parseDouble(price.replace("$", "")))
                     .toList();
 
             Assertions.assertThat(prices)
@@ -127,26 +127,64 @@ public class PlaywrightAssertionsTest {
                                     .isLessThan(1000.0));
         }
 
-
         @Test
-        void shouldSortInAlphabeticalOrder() {
+        void shouldSortInAlphabeticalOrder(){
             page.getByLabel("Sort").selectOption("Name (A - Z)");
             page.waitForLoadState(LoadState.NETWORKIDLE);
+            List <String> productNames = page.getByTestId("product-name").allTextContents();
 
-            List<String> productNames = page.getByTestId("product-name").allTextContents();
-
+            Assertions.assertThat(productNames).isSortedAccordingTo(Comparator.naturalOrder());
             Assertions.assertThat(productNames).isSortedAccordingTo(String.CASE_INSENSITIVE_ORDER);
         }
-
         @Test
-        void shouldSortInReverseAlphabeticalOrder() {
+        void shouldSortInReverseOrder(){
             page.getByLabel("Sort").selectOption("Name (Z - A)");
             page.waitForLoadState(LoadState.NETWORKIDLE);
-
-            List<String> productNames = page.getByTestId("product-name").allTextContents();
+            List <String> productNames = page.getByTestId("product-name").allTextContents();
 
             Assertions.assertThat(productNames).isSortedAccordingTo(Comparator.reverseOrder());
+
         }
+
+//        @Test
+//        void allProductPricesShouldBeCorrectValues() {
+//            List<Double> prices = page.getByTestId("product-price")
+//                    .allInnerTexts()
+//                    .stream()
+//                    .map(price -> Double.parseDouble(price.replace("$","")))
+//                    .toList();
+//
+//            Assertions.assertThat(prices)
+//                    .isNotEmpty()
+//                    .allMatch(price -> price > 0)
+//                    .doesNotContain(0.0)
+//                    .allMatch(price -> price < 1000)
+//                    .allSatisfy(price ->
+//                            Assertions.assertThat(price)
+//                                    .isGreaterThan(0.0)
+//                                    .isLessThan(1000.0));
+//        }
+//
+//
+//        @Test
+//        void shouldSortInAlphabeticalOrder() {
+//            page.getByLabel("Sort").selectOption("Name (A - Z)");
+//            page.waitForLoadState(LoadState.NETWORKIDLE);
+//
+//            List<String> productNames = page.getByTestId("product-name").allTextContents();
+//
+//            Assertions.assertThat(productNames).isSortedAccordingTo(String.CASE_INSENSITIVE_ORDER);
+//        }
+//
+//        @Test
+//        void shouldSortInReverseAlphabeticalOrder() {
+//            page.getByLabel("Sort").selectOption("Name (Z - A)");
+//            page.waitForLoadState(LoadState.NETWORKIDLE);
+//
+//            List<String> productNames = page.getByTestId("product-name").allTextContents();
+//
+//            Assertions.assertThat(productNames).isSortedAccordingTo(Comparator.reverseOrder());
+//        }
 
     }
 }
